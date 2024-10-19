@@ -1,0 +1,28 @@
+# Ignore Python virtual environment
+env/
+venv/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Ignore Python environment configuration
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Ignore IDE specific files
+.vscode/
+.idea/
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+*.swp
