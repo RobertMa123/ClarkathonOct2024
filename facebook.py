@@ -6,6 +6,8 @@ def get_groups(keyword):
     url = f'https://www.googleapis.com/customsearch/v1?key=AIzaSyDmzZ5B86WPjcUpBghQ-F2Gg95T0dHmAiE&cx=70c8a26a4782b4147&q={keyword}+facebook+group'
 
     response = requests.get(url).json()["items"]
+    
+    limit = min(5, len(response))
 
     top_groups = pd.DataFrame({
         "name" : [response[i]["title"] for i in range(5)],
