@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from reddit import get_communities, get_posts_text
 from facebook import get_groups
 from gemini import summary_from_post_text, summary_from_desc
+import random
 
 app = Flask(__name__)
 
@@ -17,11 +18,13 @@ def run_reddit(keyword, num_communities):
         posts_text = get_posts_text(community_name)
         num_members = str(communitiesDF['subscribers'][i])
         summary = summary_from_post_text(community_name, posts_text)
+        link = communitiesDF['link'][i]  # Link to the community
         summaries.append({
             "source": "Reddit",
             "community": "r/" + community_name,
             "summary": summary,
-            "num_members": num_members
+            "num_members": num_members,
+            "link": link  # Add link here
         })
     
     summaries.sort(key=lambda x: x['num_members'], reverse=True)
@@ -36,10 +39,12 @@ def run_fb(keyword, num_communities):
         group_name = groupsDF['name'][i]
         desc = groupsDF['description'][i]
         summary = summary_from_desc(group_name, desc)
+        link = groupsDF['link'][i]  # Link to the group
         summaries.append({
             "source": "Facebook",
             "community": group_name,
             "summary": summary,
+            "link": link  # Add link here
         })
     
     return summaries
