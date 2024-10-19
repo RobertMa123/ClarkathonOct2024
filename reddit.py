@@ -1,11 +1,13 @@
 import requests as rq
 import pandas as pd
 
-def get_communities(keyword):
+def get_communities(keyword, num):
     url = f'https://www.reddit.com/subreddits/search.json?q={keyword}'
     headers = {'User-Agent': 'Mozilla/5.0'}
     result = rq.get(url, headers=headers).json()
-    subreddits = result['data']['children']
+    if len(result["data"]["children"]) < num:
+        num = len(result["data"]["children"]) - 1
+    subreddits = result['data']['children'][:num]
     df = pd.DataFrame({
     "name" : [sub["data"]["display_name"] for sub in subreddits],
     "subscribers" : [sub["data"]["subscribers"] for sub in subreddits],

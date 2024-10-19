@@ -7,17 +7,19 @@ def get_groups(keyword):
 
     response = requests.get(url).json()["items"]
 
+    n = min(5,len(response))
+
     descriptions = []
-    for i in range(5):
+    for i in range(n):
         if "og:description" in response[i]["pagemap"]["metatags"][0]:
             descriptions.append(response[i]["pagemap"]["metatags"][0]["og:description"])
         else:
             descriptions.append("No description provided")
     
     top_groups = pd.DataFrame({
-        "name" : [response[i]["title"] for i in range(5)],
+        "name" : [response[i]["title"] for i in range(n)],
         "description" : descriptions,
-        "link" : [response[i]["link"] for i in range(5)]
+        "link" : [response[i]["link"] for i in range(n)]
     })
     
     return top_groups

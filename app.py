@@ -9,11 +9,11 @@ app = Flask(__name__, static_folder='static')  # Set the folder for serving stat
 
 def run_reddit(keyword, num_communities):
     summaries = []
-    communitiesDF = get_communities(keyword)
+    communitiesDF = get_communities(keyword, num_communities)
     
-    num_communities = min(num_communities, len(communitiesDF))
+    n = min(num_communities, len(communitiesDF))
     
-    for i in range(num_communities):
+    for i in range(n):
         community_name = communitiesDF['name'][i]
         posts_text = get_posts_text(community_name)
         num_members = str(communitiesDF['subscribers'][i])
@@ -39,9 +39,9 @@ def run_reddit(keyword, num_communities):
 def run_facebook(keyword, num_communities):
     summaries = []
     groupsDF = get_groups(keyword)
-    num_communities = min(num_communities, len(groupsDF))
+    n = min(num_communities, len(groupsDF))
     
-    for i in range(num_communities):
+    for i in range(n):
         group_name = groupsDF['name'][i]
         desc = groupsDF['description'][i]
         try:
@@ -64,9 +64,9 @@ def run_facebook(keyword, num_communities):
 def run_tumblr(keyword, num_communities):
     summaries = []
     communitiesDF = get_tumblr_communities(keyword)  # Using Tumblr's get_communities function
-    num_communities = min(num_communities, len(communitiesDF))
+    n = min(num_communities, len(communitiesDF))
     
-    for i in range(num_communities):
+    for i in range(n):
         community_name = communitiesDF['name'][i]
         desc = communitiesDF['description'][i]
         try:
