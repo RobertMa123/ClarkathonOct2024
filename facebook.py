@@ -9,7 +9,8 @@ def get_groups(keyword):
 
     top_groups = pd.DataFrame({
         "name" : [response[i]["title"] for i in range(5)],
-        "description" : [response[i]["pagemap"]["metatags"][0]["og:description"] for i in range(5)]
+        "description" : [response[i]["pagemap"]["metatags"][0]["og:description"] for i in range(5)],
+        "link" : [response[i]["link"] for i in range(5)]
     })
     
     return top_groups

@@ -10,7 +10,8 @@ def get_communities(keyword):
     "name" : [sub["data"]["display_name"] for sub in subreddits],
     "subscribers" : [sub["data"]["subscribers"] for sub in subreddits],
     "title" : [sub["data"]["title"] for sub in subreddits],
-    "description" : [sub["data"]["public_description"] for sub in subreddits]
+    "description" : [sub["data"]["public_description"] for sub in subreddits],
+    "link" : [f'https://www.reddit.com/r/{sub["data"]["display_name"]}' for sub in subreddits]
     })
     return df
 
