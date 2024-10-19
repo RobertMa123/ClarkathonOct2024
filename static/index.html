@@ -29,7 +29,7 @@
             font-weight: bold;
             margin-bottom: 20px;
         }
-        input[type="text"] {
+        input[type="text"], input[type="number"] {
             width: 80%;
             padding: 10px;
             margin-bottom: 10px;
@@ -47,45 +47,133 @@
         input[type="submit"]:hover {
             background-color: #45a049;
         }
-        .result {
-            margin-top: 20px;
+        select {
+            width: 80%;
             padding: 10px;
+            margin-top: 20px;
+            border-radius: 5px;
             border: 1px solid #ddd;
-            width: 100%;
+            margin-left: auto; 
+            margin-right: auto; 
+            display: block; 
+        }
+        .summary {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+        /* Loading Spinner Styles */
+        .spinner {
+            display: none; /* Hidden by default */
+            border: 8px solid #f3f3f3; /* Light grey */
+            border-top: 8px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite; /* Animation for spinning effect */
+            margin: 20px auto; /* Center the spinner */
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="title">Quick Dive</div>
-        <h2>Keyword Search</h2>
+        <h4>Making it easier to find your community</h4>
         <form id="keywordForm" method="POST" action="/search">
             <label for="keyword">Enter keyword:</label><br>
             <input type="text" id="keyword" name="keyword" required><br>
+            <label for="numCommunities">Number of communities to display:</label><br>
+            <input type="number" id="numCommunities" name="numCommunities" min="1" required><br>
+            
+            <label>Select platforms:</label><br>
+            <input type="checkbox" id="redditCheckbox" name="platforms" value="reddit" checked>
+            <label for="redditCheckbox">Reddit</label><br>
+            <input type="checkbox" id="facebookCheckbox" name="platforms" value="facebook" checked>
+            <label for="facebookCheckbox">Facebook</label><br>
+
             <input type="submit" value="Search">
         </form>
 
-        <div id="result" class="result"></div>
+        <!-- Spinner for loading -->
+        <div class="spinner" id="loadingSpinner"></div>
+
+        <!-- Dropdown to show community names -->
+        <select id="communityDropdown" style="display:none;">
+            <option value="">Select a community</option>
+        </select>
+
+        <!-- Div to display the selected community's summary -->
+        <div class="summary" id="communitySummary" style="display:none;"></div>
     </div>
 
     <script>
         document.getElementById('keywordForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the form from submitting the traditional way
-
+            event.preventDefault(); // Prevent form submission
+            
             const keyword = document.getElementById('keyword').value;
+            const numCommunities = document.getElementById('numCommunities').value;
+
+            // Get the selected platforms
+            const platforms = [];
+            if (document.getElementById('redditCheckbox').checked) {
+                platforms.push('reddit');
+            }
+            if (document.getElementById('facebookCheckbox').checked) {
+                platforms.push('facebook');
+            }
+
+            const spinner = document.getElementById('loadingSpinner');
+            spinner.style.display = 'block';  // Show the spinner
+
             fetch('/search', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ keyword: keyword })
+                body: JSON.stringify({ keyword: keyword, numCommunities: numCommunities, platforms: platforms })
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('result').innerText = 'Result: ' + data.result;
+                spinner.style.display = 'none';  // Hide the spinner when data is received
+                const dropdown = document.getElementById('communityDropdown');
+                dropdown.style.display = 'block';  // Show the dropdown
+                dropdown.innerHTML = '';  // Clear existing options
+
+                // Add the default "select" option
+                const defaultOption = document.createElement('option');
+                defaultOption.text = 'Select a community';
+                defaultOption.value = '';
+                dropdown.add(defaultOption);
+
+                // Populate dropdown with community names and member counts
+                data.result.forEach((item, index) => {
+                    const membersText = item.num_members ? ` (Members: ${item.num_members})` : '';  // Only show if num_members exists
+                    const option = document.createElement('option');
+                    option.text = `${item.source}: ${item.community}${membersText}`;  // Include source and num_members if available
+                    option.value = index;  // Set the index as the value to map to the summary
+                    dropdown.add(option);
+                });
+
+                // Listen for community selection
+                dropdown.addEventListener('change', function() {
+                    const selectedIndex = dropdown.value;
+                    if (selectedIndex !== '') {
+                        const selectedCommunity = data.result[selectedIndex];
+                        const summaryDiv = document.getElementById('communitySummary');
+                        summaryDiv.style.display = 'block';
+                        summaryDiv.innerHTML = `<strong>Summary:</strong> ${selectedCommunity.summary}`;
+                    } else {
+                        document.getElementById('communitySummary').style.display = 'none';
+                    }
+                });
             })
             .catch(error => {
-                document.getElementById('result').innerText = 'Error: ' + error;
+                spinner.style.display = 'none';  // Hide the spinner if an error occurs
+                console.error('Error:', error);
             });
         });
     </script>
