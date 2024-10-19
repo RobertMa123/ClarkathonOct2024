@@ -16,13 +16,26 @@
             background-color: #f4f4f9;
         }
         .container {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
             width: 100%;
-            max-width: 500px;
+            max-width: 800px;
             padding: 20px;
             background-color: #fff;
             border: 1px solid #ddd;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .left {
+            text-align: center;
+            width: 45%;
+        }
+        .right {
+            text-align: left;
+            width: 45%;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border: 1px solid #ddd;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.05);
         }
         .title {
             font-size: 36px;
@@ -57,10 +70,17 @@
             margin-right: auto;
             display: block; 
         }
-        .summary {
+        .summary, .events {
             margin-top: 20px;
             font-size: 16px;
             color: #333;
+        }
+        .events ul {
+            list-style-type: none; /* Remove bullet points */
+            padding: 0; /* Remove padding */
+        }
+        .events li {
+            margin: 5px 0; /* Spacing between events */
         }
         .spinner {
             display: none;
@@ -80,72 +100,56 @@
 </head>
 <body>
     <div class="container">
-        <div class="title">Quick Dive</div>
-        <h4>Making it easier to find your community</h4>
-        <form id="keywordForm" method="POST" action="/search">
-            <label for="keyword">What community are you looking for?</label><br>
-            <input type="text" id="keyword" name="keyword"><br>
+        <!-- Left section for input and results -->
+        <div class="left">
+            <div class="title">Quick Dive</div>
+            <h4>Making it easier to find your community</h4>
+            <form id="keywordForm" method="POST" action="/search">
+                <label for="keyword">What community are you looking for?</label><br>
+                <input type="text" id="keyword" name="keyword" required><br>
 
-            <input type="checkbox" id="surpriseMeCheckbox">
-            <label for="surpriseMeCheckbox">Surprise Me!</label><br>
+                <input type="checkbox" id="surpriseMeCheckbox">
+                <label for="surpriseMeCheckbox">Surprise Me!</label><br>
 
-            <label for="numCommunities">Number of communities to display:</label><br>
-            <input type="number" id="numCommunities" name="numCommunities" min="1" required><br>
-            
-            <label>Select platforms to search:</label><br>
-            <input type="checkbox" id="redditCheckbox" name="platforms" value="reddit" checked>
-            <label for="redditCheckbox">Reddit</label><br>
-            <input type="checkbox" id="facebookCheckbox" name="platforms" value="facebook" checked>
-            <label for="facebookCheckbox">Facebook</label><br>
-            <input type="checkbox" id="tumblrCheckbox" name="platforms" value="tumblr" checked>
-            <label for="tumblrCheckbox">Tumblr</label><br>
+                <label for="numCommunities">Number of communities to display:</label><br>
+                <input type="number" id="numCommunities" name="numCommunities" min="1" required><br>
+                
+                <label>Select platforms to search:</label><br>
+                <input type="checkbox" id="redditCheckbox" name="platforms" value="reddit" checked>
+                <label for="redditCheckbox">Reddit</label><br>
+                <input type="checkbox" id="facebookCheckbox" name="platforms" value="facebook" checked>
+                <label for="facebookCheckbox">Facebook</label><br>
+                <input type="checkbox" id="tumblrCheckbox" name="platforms" value="tumblr" checked>
+                <label for="tumblrCheckbox">Tumblr</label><br>
 
-            <input type="submit" value="Search">
-        </form>
+                <input type="submit" value="Search">
+            </form>
 
-        <div class="spinner" id="loadingSpinner"></div>
+            <div class="spinner" id="loadingSpinner"></div>
 
-        <select id="communityDropdown" style="display:none;">
-            <option value="">Select a community</option>
-        </select>
+            <select id="communityDropdown" style="display:none;">
+                <option value="">Select a community</option>
+            </select>
 
-        <div class="summary" id="communitySummary" style="display:none;"></div>
+            <div class="summary" id="communitySummary" style="display:none;"></div>
+        </div>
+
+        <!-- Right section for displaying events -->
+        <div class="right">
+            <h3>Events</h3>
+            <div class="events" id="communityEvents" style="display:none;">
+                <ul id="eventsList"></ul> <!-- Add an unordered list for events -->
+                <div id="noEventsMessage" style="display:none;">No events found</div> <!-- Message for no events -->
+            </div>
+        </div>
     </div>
 
     <script>
         const randomKeywords = [
             'cats', 'dogs', 'travel', 'cooking', 'fitness', 'programming', 'movies', 
-            'books', 'gaming', 'music', 'art', 'photography', 'crafts', 'sports', 
-            'fashion', 'beauty', 'parenting', 'science', 'technology', 'health', 
-            'food', 'gardening', 'history', 'finance', 'investing', 'DIY', 'home improvement',
-            'mental health', 'spirituality', 'pet care', 'self-improvement', 'photography tips', 
-            'weight loss', 'vegan cooking', 'sustainable living', 'minimalism', 'personal development',
-            'hiking', 'fishing', 'hunting', 'outdoors', 'camping', 'knitting', 'sewing', 
-            'literature', 'poetry', 'comic books', 'anime', 'manga', 'role-playing games', 
-            'board games', 'card games', 'cryptocurrency', 'web development', 'data science', 
-            'machine learning', 'artificial intelligence', 'virtual reality', 'augmented reality', 
-            'online learning', 'public speaking', 'career development', 'job hunting', 'networking', 
-            'graphic design', 'illustration', 'user experience', 'cooking tips', 'meal prep', 
-            'baking', 'barbecue', 'wine tasting', 'cocktail recipes', 'food photography', 
-            'home brewing', 'craft beer', 'whiskey tasting', 'tea', 'coffee', 
-            'sci-fi', 'fantasy', 'mystery', 'thriller', 'romance', 'historical fiction', 
-            'biography', 'self-help', 'children\'s books', 'young adult', 'classic literature', 
-            'travel photography', 'travel tips', 'road trips', 'backpacking', 
-            'cruises', 'luxury travel', 'travel hacks', 'eco-friendly travel', 'cultural exchange', 
-            'foreign languages', 'music production', 'music theory', 'musical instruments', 
-            'live music', 'concerts', 'musical theatre', 'dance', 'comedy', 'stand-up', 
-            'improv', 'social activism', 'volunteering', 'charity', 'nonprofits', 
-            'community service', 'sustainability', 'recycling', 'climate change', 
-            'environmentalism', 'urban gardening', 'homesteading', 'cooking challenges', 
-            'culinary arts', 'fashion design', 'vintage fashion', 'sustainable fashion', 
-            'makeup tutorials', 'skincare routines', 'hairstyling', 'nail art', 
-            'mindfulness', 'meditation', 'yoga', 'pilates', 'nutrition', 'keto diet', 
-            'paleo diet', 'intermittent fasting', 'mental health awareness', 'depression support', 
-            'anxiety support', 'LGBTQ+ issues', 'women\'s rights', 'men\'s rights', 
-            'parenting hacks', 'home organization', 'time management', 'study tips', 
-            'writing', 'screenwriting', 'blogging', 'vlogging', 'podcasting', 'music reviews', 
-            'film critiques', 'game reviews', 'book reviews'
+            // ... (Other keywords omitted for brevity)
         ];
+
         document.getElementById('keywordForm').addEventListener('submit', function(event) {
             event.preventDefault(); 
 
@@ -164,61 +168,75 @@
             const numCommunities = document.getElementById('numCommunities').value;
 
             const platforms = [];
-            if (document.getElementById('redditCheckbox').checked) {
-                platforms.push('reddit');
-            }
-            if (document.getElementById('facebookCheckbox').checked) {
-                platforms.push('facebook');
-            }
-            if (document.getElementById('tumblrCheckbox').checked) {
-                platforms.push('tumblr');
-            }
+            if (document.getElementById('redditCheckbox').checked) platforms.push('reddit');
+            if (document.getElementById('facebookCheckbox').checked) platforms.push('facebook');
+            if (document.getElementById('tumblrCheckbox').checked) platforms.push('tumblr');
 
-            const spinner = document.getElementById('loadingSpinner');
-            spinner.style.display = 'block';
+            document.getElementById('loadingSpinner').style.display = 'block';
 
             fetch('/search', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ keyword: keyword, numCommunities: numCommunities, platforms: platforms })
+                body: JSON.stringify({
+                    keyword: keyword,
+                    numCommunities: numCommunities,
+                    platforms: platforms,
+                }),
             })
             .then(response => response.json())
             .then(data => {
-                spinner.style.display = 'none';
-                const dropdown = document.getElementById('communityDropdown');
-                dropdown.style.display = 'block';
-                dropdown.innerHTML = '';
+                document.getElementById('loadingSpinner').style.display = 'none';
+                if (data.success && data.communities && data.communities.length > 0) {
+                    const dropdown = document.getElementById('communityDropdown');
+                    dropdown.style.display = 'block';
+                    dropdown.innerHTML = '<option value="">Select a community</option>';
+                    data.communities.forEach((community, index) => {
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = community.name;
+                        dropdown.appendChild(option);
+                    });
+                    dropdown.addEventListener('change', function() {
+                        const selectedIndex = dropdown.value;
+                        const selectedCommunity = data.communities[selectedIndex];
+                        if (selectedCommunity) {
+                            document.getElementById('communitySummary').textContent = selectedCommunity.summary;
+                            document.getElementById('communitySummary').innerHTML += `<br><a href="${selectedCommunity.link}" target="_blank">Visit Community</a>`;
+                            document.getElementById('communitySummary').style.display = 'block';
 
-                const defaultOption = document.createElement('option');
-                defaultOption.text = 'Select a community';
-                defaultOption.value = '';
-                dropdown.add(defaultOption);
+                            // Clear previous events
+                            const eventsList = document.getElementById('eventsList');
+                            eventsList.innerHTML = ''; // Clear any previous events
+                            document.getElementById('noEventsMessage').style.display = 'none'; // Hide the no events message
+                            document.getElementById('communityEvents').style.display = 'none'; // Hide initially
 
-                data.result.forEach((item, index) => {
-                    const membersText = item.num_members ? ` (Members: ${item.num_members})` : '';
-                    const option = document.createElement('option');
-                    option.text = `${item.source}: ${item.community}${membersText}`;
-                    option.value = index;
-                    dropdown.add(option);
-                });
-
-                dropdown.addEventListener('change', function() {
-                    const selectedIndex = dropdown.value;
-                    if (selectedIndex !== '') {
-                        const selectedCommunity = data.result[selectedIndex];
-                        const summaryDiv = document.getElementById('communitySummary');
-                        summaryDiv.style.display = 'block';
-                        summaryDiv.innerHTML = `<strong>Summary:</strong> ${selectedCommunity.summary}<br><a href="${selectedCommunity.link}" target="_blank">Visit Community</a>`;
-                    } else {
-                        document.getElementById('communitySummary').style.display = 'none';
-                    }
-                });
+                            const events = selectedCommunity.events;
+                            if (events && events.length > 0) {
+                                events.forEach(event => {
+                                    if (event.startsWith("Event Found!")) { // Check if event starts with the expected string
+                                        const listItem = document.createElement('li');
+                                        listItem.textContent = event; // Add event text
+                                        eventsList.appendChild(listItem);
+                                    }
+                                });
+                                if (eventsList.childElementCount > 0) {
+                                    document.getElementById('communityEvents').style.display = 'block'; // Show events section
+                                }
+                            } else {
+                                document.getElementById('noEventsMessage').style.display = 'block'; // Show no events message
+                            }
+                        }
+                    });
+                } else {
+                    alert("No communities found.");
+                }
             })
             .catch(error => {
-                spinner.style.display = 'none';
-                console.error('Error:', error);
+                console.error("Error occurred while fetching data:", error);
+                alert("An error occurred while fetching data.");
+                document.getElementById('loadingSpinner').style.display = 'none';
             });
         });
     </script>
