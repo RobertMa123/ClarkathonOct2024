@@ -17,7 +17,10 @@ def run_reddit(keyword, num_communities):
         community_name = communitiesDF['name'][i]
         posts_text = get_posts_text(community_name)
         num_members = str(communitiesDF['subscribers'][i])
-        summary = summary_from_post_text(community_name, posts_text)
+        try:
+            summary = summary_from_post_text(community_name, posts_text)
+        except:
+            summary = "No Description"
         link = communitiesDF['link'][i]  
         summaries.append({
             "source": "Reddit",
@@ -38,7 +41,10 @@ def run_facebook(keyword, num_communities):
     for i in range(num_communities):
         group_name = groupsDF['name'][i]
         desc = groupsDF['description'][i]
-        summary = summary_from_desc(group_name, desc)
+        try:
+            summary = summary_from_desc(group_name, desc)
+        except:
+            summary = "No description"
         link = groupsDF['link'][i]  
         summaries.append({
             "source": "Facebook",
@@ -57,7 +63,10 @@ def run_tumblr(keyword, num_communities):
     for i in range(num_communities):
         community_name = communitiesDF['name'][i]
         desc = communitiesDF['description'][i]
-        summary = summary_tumblr(community_name, desc)
+        try:
+            summary = summary_tumblr(community_name, desc)
+        except:
+            summary = "No Description"
         link = communitiesDF['link'][i]
         summaries.append({
             "source": "Tumblr",

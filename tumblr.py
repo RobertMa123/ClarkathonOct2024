@@ -6,12 +6,23 @@ def get_communities(keyword):
     # URL to search for public groups containing the keyword
     url = f'https://www.googleapis.com/customsearch/v1?key=AIzaSyDmzZ5B86WPjcUpBghQ-F2Gg95T0dHmAiE&cx=63510fb2f693c4a11&q={keyword}+tumblr+community'
 
-    response = requests.get(url).json()['items']
+    response = requests.get(url).json()
+    if int(response["searchInformation"]["totalResults"]) < 1:
+        return pd.DataFrame()
+    response = response["items"]
+    
     limit = min(5, len(response))
+    
+    descriptions = []
+    for i in range(limit):
+        if "og:description" in response[i]["pagemap"]["metatags"][0]:
+            descriptions.append(response[i]["pagemap"]["metatags"][0]["og:description"])
+        else:
+            descriptions.append("No description provided")
 
     top_groups = pd.DataFrame({
         "name" : [response[i]["title"] for i in range(limit)],
-        "description" : [response[i]["pagemap"]["metatags"][0]["og:description"] for i in range(limit)],
+        "description" : descriptions,
         "link" : [response[i]["link"] for i in range(limit)]
     })
     
