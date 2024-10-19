@@ -6,7 +6,7 @@ def get_communities(keyword):
     # URL to search for public groups containing the keyword
     url = f'https://www.googleapis.com/customsearch/v1?key=AIzaSyDmzZ5B86WPjcUpBghQ-F2Gg95T0dHmAiE&cx=63510fb2f693c4a11&q={keyword}+tumblr+community'
 
-    response = requests.get(url).json()["items"]
+    response = requests.get(url).json()['items']
     limit = min(5, len(response))
 
     top_groups = pd.DataFrame({

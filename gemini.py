@@ -15,3 +15,11 @@ def summary_from_desc(group, text):
                                 " summarize and rewrite the description in less than 3 sentences")
     model_response = model.generate_content(text)
     return model_response.text
+
+def summary_tumblr(group, text):
+    import google.generativeai as gem
+    gem.configure(api_key="AIzaSyA8XQWC7KyDbZozq7iLzJh-n9Ptusn3NP0")
+    model = gem.GenerativeModel("gemini-1.5-flash",system_instruction=f"You are going to be sent a description of a tumblr group called {group}"+
+                                " summarize and rewrite the description in less than 3 sentences")
+    model_response = model.generate_content(text)
+    return model_response.text
