@@ -1,13 +1,13 @@
 import requests
 import pandas as pd
 
-def get_groups(keyword):
+def get_groups(keyword, num_communities):
     # URL to search for public groups containing the keyword
     url = f'https://www.googleapis.com/customsearch/v1?key=AIzaSyDmzZ5B86WPjcUpBghQ-F2Gg95T0dHmAiE&cx=70c8a26a4782b4147&q={keyword}+facebook+group'
 
     response = requests.get(url).json()["items"]
 
-    n = min(5,len(response))
+    n = min(num_communities,len(response))
 
     descriptions = []
     for i in range(n):

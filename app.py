@@ -38,7 +38,7 @@ def run_reddit(keyword, num_communities):
 
 def run_facebook(keyword, num_communities):
     summaries = []
-    groupsDF = get_groups(keyword)
+    groupsDF = get_groups(keyword, num_communities)
     n = min(num_communities, len(groupsDF))
     
     for i in range(n):
@@ -63,7 +63,7 @@ def run_facebook(keyword, num_communities):
 
 def run_tumblr(keyword, num_communities):
     summaries = []
-    communitiesDF = get_tumblr_communities(keyword)  # Using Tumblr's get_communities function
+    communitiesDF = get_tumblr_communities(keyword, num_communities)  # Using Tumblr's get_communities function
     n = min(num_communities, len(communitiesDF))
     
     for i in range(n):

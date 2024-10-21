@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 
-def get_communities(keyword):
+def get_communities(keyword, num_communities):
     # URL to search for public groups containing the keyword
     url = f'https://www.googleapis.com/customsearch/v1?key=AIzaSyDmzZ5B86WPjcUpBghQ-F2Gg95T0dHmAiE&cx=63510fb2f693c4a11&q={keyword}+tumblr+community'
 
@@ -11,7 +11,7 @@ def get_communities(keyword):
         return pd.DataFrame()
     response = response["items"]
     
-    limit = min(5, len(response))
+    limit = min(num_communities, len(response))
     
     descriptions = []
     for i in range(limit):
